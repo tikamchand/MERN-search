@@ -30,6 +30,7 @@ function App() {
     setAds(result);
     console.log(ads.length > 0);
   };
+  
   return (
     <div className="App">
       <div className="container h-100 d-flex flex-column align-items-center justify-content-center mt-5">
