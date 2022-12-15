@@ -50,15 +50,48 @@ app.get("/search/:key", async (req, res) => {
         localField: "companyId",
         foreignField: "_id",
         let: { companyId: "$companyId" },
-        pipeline: [ { $match: { $match:  { $expr: { $eq: ["$$companyId", "$_id"] } } }}],
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$$companyId", "$_id"],
+              },
+            },
+          },
+        ],
         as: "companies",
       },
     },
-    { $match: { $text: { $search: req.params.key } } },
+    {
+      $match: {
+        $or: [
+          { "companies.company_name": new RegExp(`^.*${req.params.key}.*$`,"i")  },
+          { "headline": new RegExp(`^.*${req.params.key}.*$`,"i")  },
+          { "description": new RegExp(`^.*${req.params.key}.*$`,"i")  },
+          { "primaryText": new RegExp(`^.*${req.params.key}.*$`,"i")  },
+        ],
+      },
+    },
   ]).exec((err, result) => {
     return res.send(result);
   });
 });
+// {
+//   $lookup: {
+//     from: "companies",
+//     localField: "companyId",
+//     foreignField: "_id",    
+//     as: "companies",
+//   },
+// },
+// {
+//   $project: {
+//     "companies.company_name": 1,
+//     headline: 1,
+//     description: 1,
+//     primaryText: 1,   
+//   },
+// },
 app.listen(port, () => {
   console.log("starting the server");
 });
